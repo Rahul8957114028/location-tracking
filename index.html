@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GeoTrack Pro | Real-Time Location & Telecom Intelligence System</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛰️</text></svg>">
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Font Awesome 6.4 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark glass-panel sticky-top mb-4 py-2 px-3 mx-2 mt-2">
+    <div class="container-fluid px-0">
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <div class="me-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; background: linear-gradient(135deg, #2563eb, #38bdf8); border-radius: 10px;">
+          <i class="fas fa-satellite text-white fs-5"></i>
+        </div>
+        <div>
+          <span class="brand-gradient fw-bold">GeoTrack Pro</span>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-2" style="font-size: 0.65rem;">COLLEGE MINI PROJECT</span>
+        </div>
+      </a>
+
+      <!-- Quick status indicator -->
+      <div class="d-none d-md-flex align-items-center me-auto ms-4 text-muted small">
+        <span class="status-dot active"></span>
+        <span id="systemStatusText">API Services & GPS Ready</span>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-outline-custom btn-sm" data-bs-toggle="modal" data-bs-target="#settingsModal">
+          <i class="fas fa-key text-warning me-1"></i> API Settings
+        </button>
+        <button class="btn btn-primary-custom btn-sm" data-bs-toggle="modal" data-bs-target="#vivaModal">
+          <i class="fas fa-graduation-cap me-1"></i> Viva Preparation Guide
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid px-3 px-lg-4 mb-4">
+    <!-- Top Telemetry Cards -->
+    <div class="row g-2 mb-3">
+      <div class="col-6 col-md-3">
+        <div class="metric-card">
+          <div class="metric-title"><i class="fas fa-crosshairs text-info me-1"></i>Active Mode</div>
+          <div class="metric-value text-info" id="hudMode">System Ready</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="metric-card">
+          <div class="metric-title"><i class="fas fa-map-pin text-warning me-1"></i>Coordinates</div>
+          <div class="metric-value" id="hudCoords" style="font-size: 0.95rem;">20.5937, 78.9629</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="metric-card">
+          <div class="metric-title"><i class="fas fa-shield-alt text-success me-1"></i>Precision / Range</div>
+          <div class="metric-value text-success" id="hudAccuracy" style="font-size: 0.95rem;">Satellite Grid Ready</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="metric-card">
+          <div class="metric-title"><i class="fas fa-server text-primary me-1"></i>Backend Engine</div>
+          <div class="metric-value text-primary" style="font-size: 0.95rem;">REST API & Geolocation</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Workspace Row -->
+    <div class="row g-3">
+      <!-- Left Column: Navigation Tabs & Controls (5 Cols on large) -->
+      <div class="col-lg-5">
+        <div class="glass-panel p-3 p-md-4 mb-3">
+          <!-- Navigation Tabs -->
+          <ul class="nav nav-pills nav-fill mb-3" id="trackingTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="pincode-tab" data-bs-toggle="pill" data-bs-target="#pincodePane" type="button" role="tab">
+                <i class="fas fa-mail-bulk me-1"></i> Pincode
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="phone-tab" data-bs-toggle="pill" data-bs-target="#phonePane" type="button" role="tab">
+                <i class="fas fa-phone-volume me-1"></i> Phone Info
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="device-tab" data-bs-toggle="pill" data-bs-target="#devicePane" type="button" role="tab">
+                <i class="fas fa-satellite-dish me-1"></i> Live GPS
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="viva-tab" data-bs-toggle="pill" data-bs-target="#vivaPane" type="button" role="tab">
+                <i class="fas fa-book-open me-1"></i> Viva FAQ
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content" id="trackingTabsContent">
+            
+            <!-- 1. PINCODE TRACKER PANE -->
+            <div class="tab-pane fade show active" id="pincodePane" role="tabpanel">
+              <div class="mb-3">
+                <h5 class="fw-bold mb-1"><i class="fas fa-map-marked-alt text-primary me-2"></i>Postal PIN Code Locator</h5>
+                <p class="text-muted small">Lookup Indian & International postal areas, Post Offices, District, State and geographical coordinates.</p>
+              </div>
+
+              <form id="pincodeForm" class="mb-3">
+                <div class="row g-2 mb-2">
+                  <div class="col-4">
+                    <label class="form-label text-muted small">Country</label>
+                    <select id="pincodeCountry" class="form-select">
+                      <option value="IN" selected>🇮🇳 India</option>
+                      <option value="US">🇺🇸 USA</option>
+                      <option value="GB">🇬🇧 UK</option>
+                      <option value="DE">🇩🇪 Germany</option>
+                      <option value="FR">🇫🇷 France</option>
+                    </select>
+                  </div>
+                  <div class="col-8">
+                    <label class="form-label text-muted small">Postal / PIN Code</label>
+                    <div class="input-group">
+                      <input type="text" id="pincodeInput" class="form-control" placeholder="e.g. 110001" maxlength="10" required>
+                      <button class="btn btn-primary-custom" type="submit" id="pincodeSearchBtn">
+                        <i class="fas fa-search me-1"></i> Track
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Quick Sample Pincodes for Demo -->
+                <div class="d-flex align-items-center gap-1 flex-wrap">
+                  <span class="text-muted small me-1">Quick Demo:</span>
+                  <button type="button" class="btn btn-sm btn-outline-custom py-0 px-2 pincode-sample-btn" data-pin="110001">110001 (Delhi)</button>
+                  <button type="button" class="btn btn-sm btn-outline-custom py-0 px-2 pincode-sample-btn" data-pin="400001">400001 (Mumbai)</button>
+                  <button type="button" class="btn btn-sm btn-outline-custom py-0 px-2 pincode-sample-btn" data-pin="560001">560001 (Bengaluru)</button>
+                  <button type="button" class="btn btn-sm btn-outline-custom py-0 px-2 pincode-sample-btn" data-pin="700001">700001 (Kolkata)</button>
+                </div>
+              </form>
+
+              <!-- Error Alert -->
+              <div id="pincodeError" class="alert alert-danger py-2 small d-none" role="alert"></div>
+
+              <!-- Pincode Results Card -->
+              <div id="pincodeResults" class="d-none">
+                <div class="card bg-dark border-secondary p-3 mb-3">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-primary fs-6">PIN: <span id="pinStatCode"></span></span>
+                    <span class="badge bg-info-subtle text-info"><span id="pinStatCount"></span> Post Offices</span>
+                  </div>
+                  <div class="row g-2 mb-2 text-start">
+                    <div class="col-6">
+                      <div class="text-muted small">District</div>
+                      <div class="fw-semibold text-white" id="pinStatDistrict">--</div>
+                    </div>
+                    <div class="col-6">
+                      <div class="text-muted small">State</div>
+                      <div class="fw-semibold text-white" id="pinStatState">--</div>
+                    </div>
+                    <div class="col-12">
+                      <div class="text-muted small">Mapped GPS Coordinates</div>
+                      <div class="fw-semibold text-info" id="pinStatCoords">--</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Post Offices Table -->
+                <div class="table-responsive" style="max-height: 220px; overflow-y: auto;">
+                  <table class="table custom-table table-sm">
+                    <thead>
+                      <tr>
+                        <th>Post Office Branch</th>
+                        <th>Type</th>
+                        <th>Delivery</th>
+                        <th>Circle</th>
+                      </tr>
+                    </thead>
+                    <tbody id="pincodeTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. PHONE INTELLIGENCE PANE -->
+            <div class="tab-pane fade" id="phonePane" role="tabpanel">
+              <div class="mb-3">
+                <h5 class="fw-bold mb-1"><i class="fas fa-sim-card text-info me-2"></i>Phone Number Intelligence</h5>
+                <p class="text-muted small">Analyze telecom operator, network circle, country, line type and regional center coordinates.</p>
+              </div>
+
+              <!-- Educational Banner: Essential for Viva -->
+              <div class="edu-alert mb-3">
+                <i class="fas fa-info-circle me-1"></i>
+                <strong>Viva Note:</strong> Telecom privacy laws (TRAI / FCC) prevent public APIs from exposing real-time GPS of external phones without device agents. This module extracts <strong>Telecom Circle / HLR Network Location & Carrier Data</strong>.
+              </div>
+
+              <form id="phoneForm" class="mb-3">
+                <div class="row g-2 mb-2">
+                  <div class="col-4">
+                    <label class="form-label text-muted small">Country Code</label>
+                    <select id="countryCodeSelect" class="form-select">
+                      <option value="+91" selected>🇮🇳 +91 (IN)</option>
+                      <option value="+1">🇺🇸 +1 (US)</option>
+                      <option value="+44">🇬🇧 +44 (UK)</option>
+                      <option value="+61">🇦🇺 +61 (AU)</option>
+                      <option value="+971">🇦🇪 +971 (UAE)</option>
+                    </select>
+                  </div>
+                  <div class="col-8">
+                    <label class="form-label text-muted small">10-Digit Mobile Number</label>
+                    <div class="input-group">
+                      <input type="tel" id="phoneNumberInput" class="form-control" placeholder="e.g. 9810123456" maxlength="15" required>
+                      <button class="btn btn-primary-custom" type="submit" id="phoneSearchBtn">
+                        <i class="fas fa-satellite-dish me-1"></i> Analyze
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Quick Sample Numbers -->
+                <div class="d-flex align-items-center gap-1 flex-wrap">
+                  <span class="text-muted small me-1">Quick Demo:</span>
+                  <button type="button" class="btn btn-sm btn-outline-custom py-0 px-2 phone-sample-btn" data-phone="9810123456">Delhi (Airtel)</button>
+                  <button type="button" class="btn btn-sm btn-outline-custom py-0 px-2 phone-sample-btn" data-phone="9820012345">Mumbai (Vi)</button>
+                  <button type="button" class="btn btn-sm btn-outline-custom py-0 px-2 phone-sample-btn" data-phone="7000123456">MP/CG (Jio)</button>
+                  <button type="button" class="btn btn-sm btn-outline-custom py-0 px-2 phone-sample-btn" data-phone="9845012345">Karnataka</button>
+                </div>
+              </form>
+
+              <!-- Error Alert -->
+              <div id="phoneError" class="alert alert-danger py-2 small d-none" role="alert"></div>
+
+              <!-- Phone Results Card -->
+              <div id="phoneResults" class="d-none">
+                <div class="card bg-dark border-secondary p-3 mb-2">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-primary" id="phoneResNumber">--</span>
+                    <span class="badge bg-success" id="phoneResLineType">Mobile</span>
+                  </div>
+                  <div class="row g-2 text-start">
+                    <div class="col-6">
+                      <div class="text-muted small">Telecom Carrier</div>
+                      <div class="fw-bold text-info" id="phoneResCarrier">--</div>
+                    </div>
+                    <div class="col-6">
+                      <div class="text-muted small">Telecom Circle / State</div>
+                      <div class="fw-bold text-warning" id="phoneResCircle">--</div>
+                    </div>
+                    <div class="col-6">
+                      <div class="text-muted small">Country</div>
+                      <div class="fw-semibold text-white" id="phoneResCountry">--</div>
+                    </div>
+                    <div class="col-6">
+                      <div class="text-muted small">Regional Center Coords</div>
+                      <div class="fw-semibold text-white" id="phoneResCoords">--</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. REAL-TIME DEVICE GPS TRACKER PANE -->
+            <div class="tab-pane fade" id="devicePane" role="tabpanel">
+              <div class="mb-3 d-flex justify-content-between align-items-center">
+                <div>
+                  <h5 class="fw-bold mb-0"><i class="fas fa-crosshairs text-success me-2"></i>Live Device GPS Tracking</h5>
+                  <p class="text-muted small mb-0">Tracks device real-time coordinates, speed, heading, and breadcrumb route.</p>
+                </div>
+                <span class="badge bg-secondary" id="deviceStatusBadge">
+                  <span class="status-dot inactive"></span>Inactive
+                </span>
+              </div>
+
+              <!-- Controls -->
+              <div class="d-flex flex-wrap gap-2 mb-3">
+                <button class="btn btn-success btn-sm flex-fill" id="startTrackBtn">
+                  <i class="fas fa-play me-1"></i> Start Live Tracking
+                </button>
+                <button class="btn btn-danger btn-sm flex-fill" id="stopTrackBtn" disabled>
+                  <i class="fas fa-stop me-1"></i> Stop Tracking
+                </button>
+                <button class="btn btn-outline-custom btn-sm flex-fill" id="simulateTrackBtn">
+                  <i class="fas fa-car me-1"></i> Simulate Movement (Viva Demo)
+                </button>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="autoCenterCheck" checked>
+                  <label class="form-check-label text-muted small" for="autoCenterCheck">Auto-center Map</label>
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-outline-secondary btn-sm py-0" id="clearPathBtn">
+                    <i class="fas fa-eraser me-1"></i> Clear Path
+                  </button>
+                  <button class="btn btn-outline-info btn-sm py-0" id="exportGeoJsonBtn">
+                    <i class="fas fa-file-export me-1"></i> Export GeoJSON
+                  </button>
+                </div>
+              </div>
+
+              <!-- Error Alert -->
+              <div id="deviceError" class="alert alert-danger py-2 small d-none" role="alert"></div>
+
+              <!-- Live Telemetry Grid -->
+              <div class="row g-2 text-center">
+                <div class="col-4">
+                  <div class="metric-card py-2">
+                    <div class="metric-title">Latitude</div>
+                    <div class="metric-value fs-6 text-info" id="devStatLat">--</div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="metric-card py-2">
+                    <div class="metric-title">Longitude</div>
+                    <div class="metric-value fs-6 text-info" id="devStatLon">--</div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="metric-card py-2">
+                    <div class="metric-title">GPS Accuracy</div>
+                    <div class="metric-value fs-6 text-success" id="devStatAccuracy">--</div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="metric-card py-2">
+                    <div class="metric-title">Speed</div>
+                    <div class="metric-value fs-6 text-warning" id="devStatSpeed">0.0 km/h</div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="metric-card py-2">
+                    <div class="metric-title">Altitude</div>
+                    <div class="metric-value fs-6 text-white" id="devStatAltitude">--</div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="metric-card py-2">
+                    <div class="metric-title">Last Ping</div>
+                    <div class="metric-value fs-6 text-muted" id="devStatTime">--</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. VIVA PREPARATION & ARCHITECTURE PANE -->
+            <div class="tab-pane fade" id="vivaPane" role="tabpanel">
+              <div class="mb-3">
+                <h5 class="fw-bold mb-1"><i class="fas fa-graduation-cap text-warning me-2"></i>Viva Quick-Reference</h5>
+                <p class="text-muted small">Top questions examiners ask during mini-project viva defense.</p>
+              </div>
+
+              <div class="accordion accordion-flush bg-transparent" id="vivaAccordion">
+                
+                <div class="accordion-item bg-dark border-secondary">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed bg-dark text-white shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#vivaQ1">
+                      1. Can we track someone's live GPS by mobile number alone?
+                    </button>
+                  </h2>
+                  <div id="vivaQ1" class="accordion-collapse collapse" data-bs-parent="#vivaAccordion">
+                    <div class="accordion-body text-muted small">
+                      <strong>Answer:</strong> <strong>No</strong>, not via public web APIs. Civilian APIs only provide Telecom Circle, HLR (Home Location Register), and Carrier info. Real-time GPS tracking requires either an app on the device with GPS permission (like our Live Device tab) or lawful telecom interception via SS7/telecom cell tower triangulation.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="accordion-item bg-dark border-secondary">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed bg-dark text-white shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#vivaQ2">
+                      2. How does real-time device tracking work technically?
+                    </button>
+                  </h2>
+                  <div id="vivaQ2" class="accordion-collapse collapse" data-bs-parent="#vivaAccordion">
+                    <div class="accordion-body text-muted small">
+                      <strong>Answer:</strong> It utilizes the W3C <code>navigator.geolocation.watchPosition()</code> API. It polls device GPS, Wi-Fi BSSID triangulation, and cellular signals, invoking our callback with high accuracy coordinates (lat, lon, accuracy, speed, heading). We stream these updates into Leaflet.js to redraw dynamic markers and polylines.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="accordion-item bg-dark border-secondary">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed bg-dark text-white shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#vivaQ3">
+                      3. What is Geocoding vs Reverse Geocoding?
+                    </button>
+                  </h2>
+                  <div id="vivaQ3" class="accordion-collapse collapse" data-bs-parent="#vivaAccordion">
+                    <div class="accordion-body text-muted small">
+                      <strong>Answer:</strong> <strong>Geocoding</strong> converts a textual address/pincode into latitude and longitude coordinates. <strong>Reverse Geocoding</strong> converts geographic coordinates (Lat/Lon) back into human-readable street addresses and landmarks.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="accordion-item bg-dark border-secondary">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed bg-dark text-white shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#vivaQ4">
+                      4. Why Leaflet.js & OpenStreetMap over Google Maps?
+                    </button>
+                  </h2>
+                  <div id="vivaQ4" class="accordion-collapse collapse" data-bs-parent="#vivaAccordion">
+                    <div class="accordion-body text-muted small">
+                      <strong>Answer:</strong> Leaflet is lightweight (approx. 42KB), open-source, mobile-friendly, and has zero compulsory credit card billing requirements unlike Google Maps JavaScript API, which frequently breaks student projects when billing quotas or keys expire.
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="mt-3 text-center">
+                <button class="btn btn-outline-warning btn-sm w-100" data-bs-toggle="modal" data-bs-target="#vivaModal">
+                  <i class="fas fa-external-link-alt me-1"></i> Read All 35+ Viva Questions & Answers
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Recent Search History -->
+        <div class="glass-panel p-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-semibold text-muted small"><i class="fas fa-history me-1"></i> Recent Lookups</span>
+            <button class="btn btn-link text-muted p-0 small text-decoration-none" id="clearHistoryBtn">Clear</button>
+          </div>
+          <div id="historyContainer" class="d-flex flex-wrap gap-2"></div>
+        </div>
+      </div>
+
+      <!-- Right Column: Interactive Leaflet Map (7 Cols on large) -->
+      <div class="col-lg-7">
+        <div class="glass-panel p-2 p-md-3 map-wrapper">
+          <!-- Map HUD Controls (Top Right) -->
+          <div class="map-hud-top">
+            <button class="btn btn-dark btn-sm hud-chip" id="mapRecenterBtn" title="Recenter to India">
+              <i class="fas fa-compress-arrows-alt me-1"></i> Recenter
+            </button>
+            <button class="btn btn-dark btn-sm hud-chip" id="mapClearBtn" title="Clear Markers">
+              <i class="fas fa-trash-alt me-1"></i> Clear Map
+            </button>
+          </div>
+
+          <!-- Leaflet Map Container -->
+          <div id="mapContainer"></div>
+
+          <!-- Map Footer Status Bar -->
+          <div class="d-flex justify-content-between align-items-center mt-2 px-2 text-muted small">
+            <div>
+              <i class="fas fa-layer-group text-primary me-1"></i>
+              Tiles: <span class="text-white">CartoDB Dark / OSM / Esri Satellite</span>
+            </div>
+            <div>
+              <i class="fas fa-shield-alt text-success me-1"></i>
+              <span>CORS & Client-side Safe</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- API Settings Modal -->
+  <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content glass-panel border-secondary text-white">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title" id="settingsModalLabel">
+            <i class="fas fa-key text-warning me-2"></i>API Configuration & Keys
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted small mb-3">
+            The project works <strong>100% out-of-the-box</strong> using public APIs (India Post, Nominatim & Telecom Matrix). You can optionally plug in your custom third-party API keys below:
+          </p>
+
+          <div class="mb-3">
+            <label class="form-label small text-muted">Numverify API Key (Phone Validation)</label>
+            <input type="text" id="numverifyKeyInput" class="form-control" placeholder="Enter Numverify access key (Optional)">
+            <div class="form-text text-muted" style="font-size: 0.75rem;">Free key available at <a href="https://numverify.com" target="_blank" class="text-info">numverify.com</a></div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small text-muted">OpenCage Geocoding API Key (Optional)</label>
+            <input type="text" id="opencageKeyInput" class="form-control" placeholder="Enter OpenCage API key (Optional)">
+            <div class="form-text text-muted" style="font-size: 0.75rem;">Free key at <a href="https://opencagedata.com" target="_blank" class="text-info">opencagedata.com</a></div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small text-muted">Nominatim Email Header</label>
+            <input type="email" id="nominatimEmailInput" class="form-control" placeholder="student@college.edu">
+            <div class="form-text text-muted" style="font-size: 0.75rem;">Required by OSM usage policy for geocoding queries.</div>
+          </div>
+        </div>
+        <div class="modal-footer border-secondary">
+          <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary-custom" id="saveSettingsBtn">Save Configuration</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full Viva Preparation Guide Modal -->
+  <div class="modal fade" id="vivaModal" tabindex="-1" aria-labelledby="vivaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content glass-panel border-secondary text-white">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title fw-bold" id="vivaModalLabel">
+            <i class="fas fa-graduation-cap text-warning me-2"></i>Comprehensive College Mini-Project Viva Guide
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="alert alert-info border-0 mb-4">
+            <h6 class="fw-bold mb-1"><i class="fas fa-award me-2"></i>Examiner Defense Guide for Mini Project</h6>
+            <p class="mb-0 small">This guide prepares you for any technical, architectural, or ethical question asked by university external examiners.</p>
+          </div>
+
+          <h5 class="text-info border-bottom border-secondary pb-2 mb-3">1. Architecture & System Overview</h5>
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <div class="card bg-dark border-secondary p-3 h-100">
+                <h6 class="text-primary fw-bold">Frontend Tier</h6>
+                <ul class="text-muted small ps-3 mb-0">
+                  <li><strong>HTML5:</strong> Semantic tags, Geolocation API.</li>
+                  <li><strong>CSS3 & Bootstrap 5:</strong> Glassmorphism UI, responsive grid.</li>
+                  <li><strong>Leaflet.js:</strong> Lightweight mapping engine, custom markers, polylines.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card bg-dark border-secondary p-3 h-100">
+                <h6 class="text-primary fw-bold">API Integration Layer</h6>
+                <ul class="text-muted small ps-3 mb-0">
+                  <li><strong>India Post API:</strong> Postal branch records.</li>
+                  <li><strong>Nominatim / OpenStreetMap:</strong> Forward geocoding.</li>
+                  <li><strong>Numverify / Telecom Matrix:</strong> Carrier & Circle metadata.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card bg-dark border-secondary p-3 h-100">
+                <h6 class="text-primary fw-bold">Backend & Security</h6>
+                <ul class="text-muted small ps-3 mb-0">
+                  <li><strong>Node.js / Express or Flask:</strong> API proxying, rate limiting.</li>
+                  <li><strong>CORS Handling:</strong> Secure cross-origin requests.</li>
+                  <li><strong>Privacy & Consent:</strong> User-authorized tracking only.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <h5 class="text-info border-bottom border-secondary pb-2 mb-3">2. Critical Viva Questions & Model Answers</h5>
+          
+          <div class="mb-3">
+            <h6 class="text-warning fw-bold">Q1: Can someone's exact live location be tracked just with their phone number?</h6>
+            <p class="text-muted small"><strong>Answer:</strong> No. In real-world telecommunications, an external civilian cannot obtain real-time GPS coordinates of another device merely by querying a phone number. Telecom operators maintain subscriber location in HLR/VLR registers, accessible only to law enforcement under lawful intercept warrants (e.g., Section 5(2) of Indian Telegraph Act). Public APIs return Telecom Circle (State) and Carrier details. Real-time GPS tracking requires on-device GPS authorization via the HTML5 Geolocation API.</p>
+          </div>
+
+          <div class="mb-3">
+            <h6 class="text-warning fw-bold">Q2: How does the HTML5 Geolocation API obtain the device's location?</h6>
+            <p class="text-muted small"><strong>Answer:</strong> The Geolocation API uses a hybrid positioning system:
+              <br>1. <strong>GPS (Global Positioning System):</strong> Direct satellite signals (~5-10m accuracy, outdoors).
+              <br>2. <strong>Wi-Fi BSSID Positioning:</strong> Compares visible Wi-Fi access points against geolocated MAC databases.
+              <br>3. <strong>Cell Tower Triangulation:</strong> Computes timing advance and signal strength from nearby GSM/LTE cell towers.
+              <br>4. <strong>IP Geolocation:</strong> Broad ISP city-level estimation (fallback).</p>
+          </div>
+
+          <div class="mb-3">
+            <h6 class="text-warning fw-bold">Q3: What is the difference between <code>getCurrentPosition()</code> and <code>watchPosition()</code>?</h6>
+            <p class="text-muted small"><strong>Answer:</strong> <code>getCurrentPosition()</code> fetches a one-time snapshot of the current location and immediately terminates. <code>watchPosition()</code> establishes an ongoing listener stream that automatically invokes the callback whenever the device's sensor detects physical movement, returning updated coordinates, speed, and heading. It returns a <code>watchId</code> used to cancel tracking via <code>clearWatch(watchId)</code>.</p>
+          </div>
+
+          <div class="mb-3">
+            <h6 class="text-warning fw-bold">Q4: What is Geocoding and how is it used in the Pincode Tracker?</h6>
+            <p class="text-muted small"><strong>Answer:</strong> Geocoding is the computational process of transforming descriptive location text (such as a 6-digit postal PIN code and district name) into geographic coordinates (Latitude and Longitude). Our application first queries the India Post API to obtain post offices and district metadata, then submits this structured query to the OpenStreetMap Nominatim Geocoding API to receive exact boundary coordinates to render on the Leaflet map.</p>
+          </div>
+
+          <div class="mb-3">
+            <h6 class="text-warning fw-bold">Q5: What are the security and privacy measures implemented in this project?</h6>
+            <p class="text-muted small"><strong>Answer:</strong>
+              <br>1. <strong>Explicit User Consent:</strong> Geolocation requests trigger standard browser permission prompts.
+              <br>2. <strong>HTTPS Requirement:</strong> Browsers restrict Geolocation APIs to secure HTTPS contexts or localhost.
+              <br>3. <strong>Client-side API Key Masking:</strong> Sensitive API keys can be proxied through the optional Node.js / Express backend to avoid exposing credentials in client scripts.
+              <br>4. <strong>No Unauthorized Data Storage:</strong> No personal coordinates are stored in remote tracking databases without user action.</p>
+          </div>
+
+          <div class="mb-3">
+            <h6 class="text-warning fw-bold">Q6: What is GeoJSON and why is it useful in this project?</h6>
+            <p class="text-muted small"><strong>Answer:</strong> GeoJSON is an open, JSON-based geospatial data interchange format defined in RFC 7946. It represents geographical features (Points, LineStrings, Polygons) alongside non-spatial attributes. Our project supports exporting the recorded live device tracking breadcrumb route as a standard GeoJSON LineString file, compatible with GIS software such as QGIS and Google Earth.</p>
+          </div>
+
+          <div class="text-center mt-4">
+            <button type="button" class="btn btn-primary-custom" data-bs-dismiss="modal">Close & Return to Dashboard</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;"></div>
+
+  <!-- Scripts -->
+  <!-- Bootstrap 5.3 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
+  <!-- Application Modules -->
+  <script src="js/config.js"></script>
+  <script src="js/pincode-tracker.js"></script>
+  <script src="js/phone-tracker.js"></script>
+  <script src="js/device-tracker.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
